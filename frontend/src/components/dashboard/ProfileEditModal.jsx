@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Upload, User, Loader2, Sparkles, AlertCircle } from 'lucide-react';
 import { userService } from '../../services/userService';
 import { uploadService } from '../../services/uploadService';
+import { resolveMediaUrl } from '../../services/api';
 
 export default function ProfileEditModal({ isOpen, onClose, user, onProfileUpdated }) {
   const [displayName, setDisplayName] = useState('');
@@ -139,7 +140,7 @@ export default function ProfileEditModal({ isOpen, onClose, user, onProfileUpdat
               <div className="relative group w-16 h-16 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-inner flex items-center justify-center shrink-0">
                 {profileImageUrl && !imageLoadError ? (
                   <img
-                    src={profileImageUrl}
+                    src={resolveMediaUrl(profileImageUrl)}
                     alt="Profile Avatar"
                     className="w-full h-full object-cover"
                     onError={() => setImageLoadError(true)}

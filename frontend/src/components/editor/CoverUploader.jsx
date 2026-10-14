@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Upload, X, Image as ImageIcon, Link as LinkIcon } from 'lucide-react';
 import uploadService from '../../services/uploadService';
+import { resolveMediaUrl } from '../../services/api';
 
 export default function CoverUploader({ coverImageUrl, setCoverImageUrl }) {
   const [uploading, setUploading] = useState(false);
@@ -36,7 +37,7 @@ export default function CoverUploader({ coverImageUrl, setCoverImageUrl }) {
     return (
       <div className="relative mb-6 rounded-2xl overflow-hidden border border-slate-200 group max-h-[360px] bg-slate-100">
         <img 
-          src={coverImageUrl} 
+          src={resolveMediaUrl(coverImageUrl)} 
           alt="Blog Cover" 
           className="w-full h-full object-cover max-h-[360px]"
         />
