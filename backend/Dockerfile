@@ -1,32 +1,31 @@
 # =========================================================
-# Stage 1: Build the Spring Boot application using Maven
+# Stage 1: Build using official Maven with Temurin 21
 # =========================================================
-FROM eclipse-temurin:21-jdk-alpine AS builder
+FROM maven:3.9.9-eclipse-temurin-21 AS builder
 
 WORKDIR /app
 
-# Install Maven in Alpine
-RUN apk add --no-cache maven
+ENV MAVEN_OPTS="-Xmx384m"
 
-# Copy POM and download dependencies
+# Copy POM and resolve dependencies
 COPY pom.xml ./
 RUN mvn dependency:go-offline -B || true
 
-# Copy source code and package fat JAR
+# Copy source and build executable JAR
 COPY src ./src
 RUN mvn clean package -DskipTests -B
 
 # =========================================================
 # Stage 2: Minimal, secure JRE production runtime image
 # =========================================================
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:21-jre-jammy
 
 WORKDIR /app
 
-# Add unprivileged user
-RUN addgroup -S inkora && adduser -S inkora -G inkora
+# Create unprivileged user
+RUN useradd -m -u 1001 inkora
 
-# Create uploads directory
+# Create uploads directory with correct permissions
 RUN mkdir -p /app/uploads && chown -R inkora:inkora /app
 
 # Copy built JAR from builder stage
@@ -37,4 +36,6 @@ USER inkora
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar"]
+ENV JAVA_OPTS="-Xmx384m -Xms128m"
+
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar app.jar"]
